@@ -39,7 +39,7 @@ class youbikeCrawler:
     def jsonToCsv(self,uDate,uTime):
         # write csv file to '~\data_before_preprocessing'
         fileName=uDate+"_"+uTime+".csv"
-        self.currDF.to_csv(self.fileDir+fileName)
+        self.currDF.to_csv(self.fileDir+fileName,encoding="utf_8_sig")
 
     def process(self):
         print("Num of crawl works:"+str(self.workTime))

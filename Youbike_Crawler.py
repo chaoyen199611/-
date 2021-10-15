@@ -10,6 +10,7 @@ class youbikeCrawler:
         if not os.path.exists(self.fileDir):
             os.makedirs(self.fileDir)
             print("add folder"+self.fileDir+"to store csv file")
+        print(self.fileDir)
         # set url of th youbike data
         self.url="http://od-oas.kcg.gov.tw/api/service/Get/b4dd9c40-9027-4125-8666-06bef1756092"
         # set list of data update time
@@ -38,6 +39,20 @@ class youbikeCrawler:
 
     def jsonToCsv(self,uDate,uTime):
         # write csv file to '~\data_before_preprocessing'
+        self.fileDir=os.path.join((os.path.abspath("."))+"\\data_before_preprocessing\\")
+        year=uDate[:4]
+        month=uDate[4:6]
+        day=month+uDate[6:]
+        print(self.fileDir)
+        self.fileDir=os.path.join(self.fileDir,year)
+        if not os.path.exists(self.fileDir):
+            os.makedirs(self.fileDir)
+        self.fileDir=os.path.join(self.fileDir,month)
+        if not os.path.exists(self.fileDir):
+            os.makedirs(self.fileDir)
+        self.fileDir=os.path.join(self.fileDir,day+'/')
+        if not os.path.exists(self.fileDir):
+            os.makedirs(self.fileDir)
         fileName=uDate+"_"+uTime+".csv"
         self.currDF.to_csv(self.fileDir+fileName,encoding="utf_8_sig")
 

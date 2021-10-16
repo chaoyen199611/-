@@ -17,14 +17,16 @@
 install `schedule` package for python
 ```sh
 pip install schedule
+pip install json
+pip install pandas
 ```
 git clone repository from github
 ```sh
-git clone https://github.com/B083040012/-.git
+git clone https://github.com/chaoyen199611/CSE_project.git
 ```
 
 ### Usage
 ```sh
-python Youbike_Crawler.py               // Default period=10 minutes
-python Youbike_Crawler.py -sch <i>      //set period with <i> minutes   
+python main.py               // Default period=10 minutes
+python main.py -sch <i>      //set period with <i> minutes   
 ```

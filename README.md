@@ -14,7 +14,7 @@
     * Dynamic modified the period when pulling dataset
     * Drawing dynamic statistic graph when pulling dataset
 ### Setup
-install `schedule` package for python
+install `schedule`, `json`, `pandas` package for python
 ```sh
 pip install schedule
 pip install json

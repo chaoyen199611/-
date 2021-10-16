@@ -1,26 +1,27 @@
+import datetime
 import mysql.connector
-import time,csv
 
-connection=mysql.connector.connect(
-    host="localhost",
-    port="3306",
-    user="root",
-    password="open0813",
-    database="youbike"
-)
 
-mycursor=connection.cursor()
-sql = "INSERT INTO `bike_station` (`record_id`, `station_id`, `station_total_space`, `bike_left`, `free_space`) VALUES (%s, %s, %s, %s, %s)"
-file=open("data_before_preprocessing/2021/10/1016/20211016_190025.csv","r",encoding="utf-8")
-rows=csv.reader(file,delimiter=',')
-next(rows)
-for row in rows:
-    total_space=int(row[5])
-    left=int(row[6])
-    free=int(row[10])
-    mycursor.execute(sql,(row[0],row[4],total_space,left,free))
-    connection.commit()
-  
+def insertData(df):
+    cnx=mysql.connector.connect(user="root",database="youbike",password="open0813")
+    cursor=cnx.cursor()
+    df.drop(columns=["sna","ar","act"],inplace=True)
+    df.reset_index(drop=True, inplace=True)
+    add_bike_station= ("INSERT INTO bike_station "
+               "(station_id,station_total_space, bike_left, free_space, update_time) "
+               "VALUES (%s, %s, %s, %s, %s)")
+    for i in range(len(df)):
+        tmp=df.loc[i]["mday"]
+        date_time_str=tmp[:4]+"-"+tmp[4:6]+"-"+tmp[6:8]+" "+tmp[8:10]+":"+tmp[10:12]+":"+tmp[12:14]
+        date_time_obj = datetime.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
+        update_time=date_time_obj
+        station_id=df.loc[i]["sno"]
+        station_total_space=df.loc[i]["tot"]
+        bike_left=df.loc[i]["sbi"]
+        free_space=df.loc[i]["bemp"]
+        data_bike_station=(station_id,station_total_space,bike_left,free_space,update_time)
+        cursor.execute(add_bike_station,data_bike_station)
+        cnx.commit()
     
-mycursor.close()
-connection.close()
+    cursor.close()
+    cnx.close()

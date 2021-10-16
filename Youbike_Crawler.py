@@ -1,7 +1,7 @@
-import urllib, json, os, schedule, sys, requests, time
+import urllib, json, os, time,requests
 import pandas as pd
-from time import ctime, gmtime, strftime
-#test
+from time import strftime
+
 class youbikeCrawler:
     def __init__(self):
         print("Initialize youbikeCrawler...")
@@ -23,21 +23,21 @@ class youbikeCrawler:
 
     def getJson(self):
         response=urllib.request.urlopen(self.url)
-        self.data=json.loads(response.read())
+        data=json.loads(response.read())
         # get type 'retVal' of the json file
-        df=pd.json_normalize(self.data['data']['retVal'])
+        df=pd.json_normalize(data['data']['retVal'])
         print("Get dataset")
-        return df
+        return df,data
 
-    def getUpdateTime(self):
+    def getUpdateTime(self,data):
         # get update date(yyyymmdd) and time
-        Time=self.data['data']['updated_at']
+        Time=data['data']['updated_at']
         print("Dataset Time:"+str(Time))
         uDate=Time.split()[0].replace("-","")
         uTime=Time.split()[1].replace(":","")
         return uDate,uTime
 
-    def jsonToCsv(self,uDate,uTime):
+    def jsonToCsv(self,uDate,uTime,currDF):
         # write csv file to '~\data_before_preprocessing'
         self.fileDir=os.path.join((os.path.abspath("."))+"\\data_before_preprocessing\\")
         year=uDate[:4]
@@ -54,19 +54,20 @@ class youbikeCrawler:
         if not os.path.exists(self.fileDir):
             os.makedirs(self.fileDir)
         fileName=uDate+"_"+uTime+".csv"
-        self.currDF.to_csv(self.fileDir+fileName,encoding="utf_8_sig")
+        currDF.to_csv(self.fileDir+fileName,encoding="utf_8_sig")
 
     def process(self):
         print("Num of crawl works:"+str(self.workTime))
         self.workTime+=1
-        try:
-            self.currDF=self.getJson()
-        except:
-            print("Error in getJson")
-            return 0
+        currDF,data=self.getJson()
+       # try:
+            
+       # except:
+        #    print("Error in getJson")
+         #   return 0
         crawlTime=strftime("%Y-%m-%d %H:%M:%S",time.localtime())
         print("Crawl Time: ",crawlTime)
-        currUDate,currUTime=self.getUpdateTime()
+        currUDate,currUTime=self.getUpdateTime(data)
 
         # current data is the same as we get previously,return
         if(self.workTime>2 and currUDate==self.uDate[-1] and currUTime==self.uTime[-1]):
@@ -81,43 +82,8 @@ class youbikeCrawler:
         # record the update time of data
         self.uDate.append(currUDate)
         self.uTime.append(currUTime)
-        self.jsonToCsv(currUDate,currUTime)
+        self.jsonToCsv(currUDate,currUTime,currDF)
         print("Write csv done")
         self.numData+=1
         print("Num of data:"+str(self.numData))
         print("================================")
-
-def main():
-    # default period time=10
-    schTime=10
-    args = sys.argv[1:]
-
-    if len(args)>0:
-        if args[0]!="-sch":
-            print("ERROR:unknown parameter")
-            return
-        elif len(args)>1:
-            if not args[1].isdigit():
-                print("Please input a positive number")
-                return
-            if int(args[1])==0:
-                print("Please input period > 0")
-                return
-            else:
-                schTime=int(args[1])
-        
-    print("================================")
-    print("schedule starts at "+strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-    print("crawler works per "+str(schTime)+" minutes")
-    print("================================")
-
-    myCrawler=youbikeCrawler()
-    myCrawler.process()
-    # schedule the crawler process
-    schedule.every(schTime).minutes.do(myCrawler.process)
-    while True:
-        schedule.run_pending()
-        time.sleep(2)
-
-if __name__=='__main__':
-    main()

@@ -1,11 +1,12 @@
 import schedule, sys,time
 from time import strftime
-from Youbike_Crawler import youbikeCrawler
+from Youbike_Crawler import weatherCrawler, youbikeCrawler
 
 
 def main():
     # default period time=10
     schTime=10
+    weather_schTime=60
     args = sys.argv[1:]
 
     if len(args)>0:
@@ -29,8 +30,11 @@ def main():
 
     myCrawler=youbikeCrawler()
     myCrawler.process()
+    weather=weatherCrawler()
+    weather.process()
     # schedule the crawler process
     schedule.every(schTime).minutes.do(myCrawler.process)
+    schedule.every(weather_schTime).minutes.do(weather.process)
     while True:
         schedule.run_pending()
         time.sleep(2)

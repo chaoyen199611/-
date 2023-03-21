@@ -4,7 +4,7 @@ import mysql.connector
 
 
 def insert_bikestation_Data(df,dataset_time,worktime):
-    cnx=mysql.connector.connect(user="root",database="youbike",password="open0813")
+    cnx=mysql.connector.connect(user="root",database="youbike",password="")
     cursor=cnx.cursor()
     df.drop(columns=["sna","ar","act"],inplace=True)
     df.reset_index(drop=True, inplace=True)
